@@ -5,9 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
-import { useToast } from "@/components/ui/toast";
 import { ToastProvider } from "@/components/ui/toast";
-import { Check, Copy, SwapVert, Plus, Trash2 } from "lucide-react";
 
 const units = {
   length: ["m", "cm", "km", "in", "ft", "mi"],
