@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  Button,
-  Input,
-  Progress,
   Popover,
-  Checkbox,
-  List,
-  ListItem,
-} from "@/components/ui";
-import { ClipboardIcon, EyeIcon, EyeOffIcon } from "@radix-ui/react-icons";
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ClipboardIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 
 const App = () => {
   const [password, setPassword] = useState("");
@@ -134,17 +131,17 @@ const PasswordInput = ({
   copyToClipboard,
 }) => (
   <div className="mb-4">
-    <Input
-      type={isVisible ? "text" : "password"}
-      value={password}
-      onChange={(e) => setPassword(e.target.value)}
-      className="mb-2"
-      endContent={
-        <Button variant="ghost" onClick={toggleVisibility}>
-          {isVisible ? <EyeOffIcon /> : <EyeIcon />}
-        </Button>
-      }
-    />
+    <div className="flex">
+      <Input
+        type={isVisible ? "text" : "password"}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className="mb-2 flex-grow"
+      />
+      <Button variant="ghost" onClick={toggleVisibility} className="ml-2">
+        {isVisible ? <EyeOffIcon /> : <EyeIcon />}
+      </Button>
+    </div>
     <Button onClick={generatePassword}>Generate Password</Button>
     <Button onClick={copyToClipboard} className="ml-2">
       <ClipboardIcon /> Copy
@@ -170,32 +167,37 @@ const PasswordStrengthMeter = ({ strength }) => {
 };
 
 const PasswordCriteria = ({ criteria }) => (
-  <List>
+  <ul className="list-disc pl-5">
     {Object.entries(criteria).map(([key, met]) => (
-      <ListItem key={key} className={met ? "text-green-500" : "text-red-500"}>
+      <li key={key} className={met ? "text-green-500" : "text-red-500"}>
         {key.replace(/([A-Z])/g, " $1").toLowerCase()} {met ? "✓" : "✗"}
-      </ListItem>
+      </li>
     ))}
-  </List>
+  </ul>
 );
 
 const SettingsPopover = ({ criteria, updateCriteria }) => (
   <Popover>
-    <Popover.Trigger asChild>
+    <PopoverTrigger asChild>
       <Button>Settings</Button>
-    </Popover.Trigger>
-    <Popover.Content>
+    </PopoverTrigger>
+    <PopoverContent>
       {Object.keys(criteria).map((key) => (
-        <div key={key}>
+        <div key={key} className="flex items-center space-x-2">
           <Checkbox
+            id={key}
             checked={criteria[key]}
             onCheckedChange={(checked) => updateCriteria(key, checked)}
+          />
+          <label
+            htmlFor={key}
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
             {key.replace(/([A-Z])/g, " $1").toLowerCase()}
-          </Checkbox>
+          </label>
         </div>
       ))}
-    </Popover.Content>
+    </PopoverContent>
   </Popover>
 );
 
