@@ -1,481 +1,484 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
-  AlertCircle,
-  DollarSign,
-  PercentIcon,
-  Trash2,
-  Plus,
-  X,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  ChevronUp,
+  ChevronDown,
+  MessageSquare,
+  Bookmark,
+  PlusCircle,
+  Menu,
 } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 
-const CurrencyInput = ({ value, onChange, label, placeholder }) => (
-  <div className="relative">
-    <Label htmlFor={label}>{label}</Label>
-    <div className="mt-1 relative rounded-md shadow-sm">
-      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-        <DollarSign className="h-5 w-5 text-gray-400" aria-hidden="true" />
-      </div>
-      <Input
-        type="number"
-        name={label}
-        id={label}
-        className="pl-10 block w-full sm:text-sm"
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        min="0"
-        step="0.01"
-      />
-    </div>
+const initialForumData = {
+  accountId: "12345-678-90123",
+  username: "techEnthusiast",
+  name: "Alex Johnson",
+  picUrl: "/api/placeholder/30/30",
+  posts: [
+    {
+      postId: "post1",
+      username: "codeWizard",
+      name: "Emma Smith",
+      picUrl: "/api/placeholder/30/30",
+      post: "Best practices for React state management in 2024?",
+      postDescription:
+        "I'm working on a large-scale React application and I'm curious about the current best practices for state management. What are your thoughts on Redux vs. Context API vs. Recoil?",
+      upvotes: 245,
+      downvotes: 12,
+      tags: ["react", "state-management", "frontend"],
+      createdAt: "2024-09-15T10:30:00Z",
+      comments: [],
+      isBookmarked: false,
+    },
+    {
+      postId: "post2",
+      username: "aiResearcher",
+      name: "Dr. Sophia Lee",
+      picUrl: "/api/placeholder/30/30",
+      post: "Ethical considerations in AI development",
+      postDescription:
+        "As AI becomes more prevalent in our daily lives, what ethical considerations should developers keep in mind? How can we ensure AI systems are fair and unbiased?",
+      upvotes: 189,
+      downvotes: 5,
+      tags: ["ai", "ethics", "technology"],
+      createdAt: "2024-09-14T14:45:00Z",
+      comments: [],
+      isBookmarked: false,
+    },
+    {
+      postId: "post3",
+      username: "cryptoEnthusiast",
+      name: "Michael Chen",
+      picUrl: "/api/placeholder/30/30",
+      post: "The future of decentralized finance (DeFi)",
+      postDescription:
+        "DeFi has been gaining traction in recent years. What are your predictions for the future of DeFi? How might it impact traditional financial systems?",
+      upvotes: 132,
+      downvotes: 8,
+      tags: ["cryptocurrency", "defi", "blockchain"],
+      createdAt: "2024-09-13T09:15:00Z",
+      comments: [],
+      isBookmarked: false,
+    },
+  ],
+};
+
+const Sidebar = ({ className }) => (
+  <div className={`${className} w-64 p-4 bg-gradient-to-b from-purple-600 to-indigo-700 text-white`}>
+    <h2 className="text-2xl font-bold mb-6">MyForum</h2>
+    <nav className="space-y-4">
+      {["Home", "Explore", "Bookmarks", "Profile"].map((item) => (
+        <Button
+          key={item}
+          variant="ghost"
+          className="w-full justify-start text-white hover:bg-white/10"
+        >
+          <span className="mr-2">{getIcon(item)}</span>
+          {item}
+        </Button>
+      ))}
+    </nav>
   </div>
 );
 
-const PercentageInput = ({ value, onChange, label }) => (
-  <div className="relative">
-    <Label htmlFor={label}>{label}</Label>
-    <div className="mt-1 relative rounded-md shadow-sm">
-      <Input
-        type="number"
-        name={label}
-        id={label}
-        className="pr-12 block w-full sm:text-sm"
-        placeholder={`Enter ${label.toLowerCase()}`}
-        value={value}
-        onChange={onChange}
-        min="0"
-        max="100"
-        step="0.1"
-      />
-      <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-        <PercentIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
-      </div>
-    </div>
-  </div>
-);
+const getIcon = (name) => {
+  const icons = {
+    Home: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+      </svg>
+    ),
+    Explore: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+        <path
+          fillRule="evenodd"
+          d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+          clipRule="evenodd"
+        />
+      </svg>
+    ),
+    Bookmarks: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z" />
+      </svg>
+    ),
+    Profile: (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-5 w-5"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fillRule="evenodd"
+          d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+          clipRule="evenodd"
+        />
+      </svg>
+    ),
+  };
+  return icons[name] || null;
+};
 
-const ResultDisplay = ({ label, value }) => (
-  <div className="bg-gray-100 p-4 rounded-md">
-    <h3 className="text-sm font-medium text-gray-500">{label}</h3>
-    <p className="mt-1 text-3xl font-semibold text-gray-900">
-      ${value.toFixed(2)}
-    </p>
-  </div>
-);
+const Post = ({ post, onVote, onBookmark, onComment }) => {
+  const [votes, setVotes] = useState(post.upvotes - post.downvotes);
+  const [isBookmarked, setIsBookmarked] = useState(post.isBookmarked);
+  const [showComments, setShowComments] = useState(false);
+  const [newComment, setNewComment] = useState("");
 
-const DiscountCalculator = () => {
-  const [originalPrice, setOriginalPrice] = useState("");
-  const [discountPercentage, setDiscountPercentage] = useState("");
-  const [taxPercentage, setTaxPercentage] = useState("");
-  const [discountedPrice, setDiscountedPrice] = useState(null);
-  const [amountSaved, setAmountSaved] = useState(null);
-  const [finalPrice, setFinalPrice] = useState(null);
-  const [error, setError] = useState("");
-  const [history, setHistory] = useState([]);
-  const [comparisonDiscounts, setComparisonDiscounts] = useState([10, 20, 30]);
-  const [newDiscount, setNewDiscount] = useState("");
-  const [comparisonTax, setComparisonTax] = useState("");
-  const [savingsGoal, setSavingsGoal] = useState("");
-  const [savingsGoalResult, setSavingsGoalResult] = useState(null);
-  const [bulkItems, setBulkItems] = useState([{ price: "", quantity: 1 }]);
-  const [bulkDiscount, setBulkDiscount] = useState("");
-  const [bulkResult, setBulkResult] = useState(null);
-
-  const calculateDiscount = (price, discount, tax = 0) => {
-    const discountAmount = price * (discount / 100);
-    const discounted = price - discountAmount;
-    const taxAmount = discounted * (tax / 100);
-    const final = discounted + taxAmount;
-    return { discounted, saved: discountAmount, final };
+  const handleVote = (type) => {
+    const newVotes = type === "up" ? votes + 1 : votes - 1;
+    setVotes(newVotes);
+    onVote(post.postId, newVotes);
   };
 
-  const handleCalculate = () => {
-    const price = parseFloat(originalPrice);
-    const discount = parseFloat(discountPercentage);
-    const tax = parseFloat(taxPercentage) || 0;
+  const handleBookmark = () => {
+    setIsBookmarked(!isBookmarked);
+    onBookmark(post.postId, !isBookmarked);
+  };
 
-    if (isNaN(price) || isNaN(discount)) {
-      setError("Please enter valid numbers for both fields.");
-      setDiscountedPrice(null);
-      setAmountSaved(null);
-      setFinalPrice(null);
-      return;
+  const handleAddComment = () => {
+    if (newComment.trim()) {
+      onComment(post.postId, newComment);
+      setNewComment("");
     }
-
-    if (price < 0 || discount < 0 || discount > 100 || tax < 0 || tax > 100) {
-      setError(
-        "Please enter valid values (price >= 0, 0 <= discount <= 100, 0 <= tax <= 100)."
-      );
-      setDiscountedPrice(null);
-      setAmountSaved(null);
-      setFinalPrice(null);
-      return;
-    }
-
-    setError("");
-    const result = calculateDiscount(price, discount, tax);
-    setDiscountedPrice(result.discounted);
-    setAmountSaved(result.saved);
-    setFinalPrice(result.final);
-
-    const newEntry = {
-      id: Date.now(),
-      originalPrice: price,
-      discountPercentage: discount,
-      taxPercentage: tax,
-      discountedPrice: result.discounted,
-      amountSaved: result.saved,
-      finalPrice: result.final,
-    };
-    setHistory((prev) => [newEntry, ...prev.slice(0, 9)]);
-  };
-
-  const clearHistory = () => {
-    setHistory([]);
-  };
-
-  const addComparisonDiscount = () => {
-    const discount = parseFloat(newDiscount);
-    if (!isNaN(discount) && discount >= 0 && discount <= 100) {
-      setComparisonDiscounts([...comparisonDiscounts, discount]);
-      setNewDiscount("");
-    }
-  };
-
-  const removeComparisonDiscount = (index) => {
-    setComparisonDiscounts(comparisonDiscounts.filter((_, i) => i !== index));
-  };
-
-  const calculateSavingsGoal = () => {
-    const price = parseFloat(originalPrice);
-    const goal = parseFloat(savingsGoal);
-
-    if (
-      isNaN(price) ||
-      isNaN(goal) ||
-      price <= 0 ||
-      goal <= 0 ||
-      goal >= price
-    ) {
-      setSavingsGoalResult("Invalid input. Please enter valid numbers.");
-      return;
-    }
-
-    const discountNeeded = ((price - goal) / price) * 100;
-    setSavingsGoalResult(
-      `To save $${goal.toFixed(2)} on a $${price.toFixed(
-        2
-      )} item, you need a ${discountNeeded.toFixed(2)}% discount.`
-    );
-  };
-
-  const addBulkItem = () => {
-    setBulkItems([...bulkItems, { price: "", quantity: 1 }]);
-  };
-
-  const removeBulkItem = (index) => {
-    setBulkItems(bulkItems.filter((_, i) => i !== index));
-  };
-
-  const updateBulkItem = (index, field, value) => {
-    const newItems = [...bulkItems];
-    newItems[index][field] = value;
-    setBulkItems(newItems);
-  };
-
-  const calculateBulkDiscount = () => {
-    const discount = parseFloat(bulkDiscount);
-    if (isNaN(discount) || discount < 0 || discount > 100) {
-      setBulkResult(
-        "Invalid discount. Please enter a number between 0 and 100."
-      );
-      return;
-    }
-
-    const totalBeforeDiscount = bulkItems.reduce((sum, item) => {
-      const price = parseFloat(item.price);
-      const quantity = parseInt(item.quantity);
-      return sum + (isNaN(price) || isNaN(quantity) ? 0 : price * quantity);
-    }, 0);
-
-    const totalAfterDiscount = totalBeforeDiscount * (1 - discount / 100);
-    const totalSaved = totalBeforeDiscount - totalAfterDiscount;
-
-    setBulkResult(`
-      Total before discount: $${totalBeforeDiscount.toFixed(2)}
-      Total after ${discount}% discount: $${totalAfterDiscount.toFixed(2)}
-      Total saved: $${totalSaved.toFixed(2)}
-    `);
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold">
-          Discount Calculator
-        </CardTitle>
+    <Card className="mb-4 overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+      <CardHeader className="flex flex-row items-center gap-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+        <img
+          src={post.picUrl}
+          alt={post.name}
+          className="w-10 h-10 rounded-full border-2 border-white"
+        />
+        <div>
+          <h3 className="font-semibold">{post.name}</h3>
+          <p className="text-sm opacity-75">@{post.username}</p>
+        </div>
       </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="calculator" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="calculator">Calculator</TabsTrigger>
-            <TabsTrigger value="history">History</TabsTrigger>
-            <TabsTrigger value="comparison">Comparison</TabsTrigger>
-            <TabsTrigger value="savingsGoal">Savings Goal</TabsTrigger>
-            <TabsTrigger value="bulkDiscount">Bulk Discount</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="calculator" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <CurrencyInput
-                value={originalPrice}
-                onChange={(e) => setOriginalPrice(e.target.value)}
-                label="Original Price"
-                placeholder="Enter original price"
-              />
-              <PercentageInput
-                value={discountPercentage}
-                onChange={(e) => setDiscountPercentage(e.target.value)}
-                label="Discount Percentage"
-              />
-              <PercentageInput
-                value={taxPercentage}
-                onChange={(e) => setTaxPercentage(e.target.value)}
-                label="Tax Percentage"
-              />
-            </div>
-            <Button onClick={handleCalculate} className="w-full">
-              Calculate Discount
+      <CardContent className="pt-4">
+        <h4 className="font-bold text-xl mb-2">{post.post}</h4>
+        <p className="text-gray-700 mb-4">{post.postDescription}</p>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {post.tags.map((tag) => (
+            <span
+              key={tag}
+              className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full"
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleVote("up")}
+              className="p-0 hover:text-green-500"
+            >
+              <ChevronUp className="h-6 w-6" />
             </Button>
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            {discountedPrice !== null && amountSaved !== null && (
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <ResultDisplay
-                  label="Discounted Price"
-                  value={discountedPrice}
-                />
-                <ResultDisplay label="Amount Saved" value={amountSaved} />
-                <ResultDisplay
-                  label="Final Price (with Tax)"
-                  value={finalPrice}
-                />
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="history">
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Calculation History</h3>
-                <Button variant="outline" onClick={clearHistory}>
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Clear History
-                </Button>
-              </div>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Original Price</TableHead>
-                    <TableHead>Discount %</TableHead>
-                    <TableHead>Tax %</TableHead>
-                    <TableHead>Discounted Price</TableHead>
-                    <TableHead>Amount Saved</TableHead>
-                    <TableHead>Final Price</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {history.map((entry) => (
-                    <TableRow key={entry.id}>
-                      <TableCell>${entry.originalPrice.toFixed(2)}</TableCell>
-                      <TableCell>{entry.discountPercentage}%</TableCell>
-                      <TableCell>{entry.taxPercentage}%</TableCell>
-                      <TableCell>${entry.discountedPrice.toFixed(2)}</TableCell>
-                      <TableCell>${entry.amountSaved.toFixed(2)}</TableCell>
-                      <TableCell>${entry.finalPrice.toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="comparison" className="space-y-4">
-            <h3 className="text-lg font-semibold">Discount Comparison</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <CurrencyInput
-                value={originalPrice}
-                onChange={(e) => setOriginalPrice(e.target.value)}
-                label="Original Price"
-                placeholder="Enter original price"
-              />
-              <PercentageInput
-                value={comparisonTax}
-                onChange={(e) => setComparisonTax(e.target.value)}
-                label="Tax Percentage"
-              />
-            </div>
-            <div className="flex items-end space-x-2">
-              <div className="flex-grow">
-                <PercentageInput
-                  value={newDiscount}
-                  onChange={(e) => setNewDiscount(e.target.value)}
-                  label="New Discount Percentage"
-                />
-              </div>
-              <Button onClick={addComparisonDiscount}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add
-              </Button>
-            </div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Discount %</TableHead>
-                  <TableHead>Discounted Price</TableHead>
-                  <TableHead>Amount Saved</TableHead>
-                  <TableHead>Final Price (with Tax)</TableHead>
-                  <TableHead>Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {comparisonDiscounts.map((discount, index) => {
-                  const price = parseFloat(originalPrice);
-                  const tax = parseFloat(comparisonTax) || 0;
-                  if (isNaN(price)) return null;
-                  const result = calculateDiscount(price, discount, tax);
-                  return (
-                    <TableRow key={index}>
-                      <TableCell>{discount}%</TableCell>
-                      <TableCell>${result.discounted.toFixed(2)}</TableCell>
-                      <TableCell>${result.saved.toFixed(2)}</TableCell>
-                      <TableCell>${result.final.toFixed(2)}</TableCell>
-                      <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeComparisonDiscount(index)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </TabsContent>
-
-          <TabsContent value="savingsGoal" className="space-y-4">
-            <h3 className="text-lg font-semibold">Savings Goal Calculator</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <CurrencyInput
-                value={originalPrice}
-                onChange={(e) => setOriginalPrice(e.target.value)}
-                label="Original Price"
-                placeholder="Enter original price"
-              />
-              <CurrencyInput
-                value={savingsGoal}
-                onChange={(e) => setSavingsGoal(e.target.value)}
-                label="Savings Goal"
-                placeholder="Enter savings goal"
-              />
-            </div>
-            <Button onClick={calculateSavingsGoal} className="w-full">
-              Calculate Required Discount
+            <span className="font-semibold text-lg">{votes}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleVote("down")}
+              className="p-0 hover:text-red-500"
+            >
+              <ChevronDown className="h-6 w-6" />
             </Button>
-            {savingsGoalResult && (
-              <Alert>
-                <AlertDescription>{savingsGoalResult}</AlertDescription>
-              </Alert>
-            )}
-          </TabsContent>
-
-          <TabsContent value="bulkDiscount" className="space-y-4">
-            <h3 className="text-lg font-semibold">Bulk Discount Calculator</h3>
-            {bulkItems.map((item, index) => (
-              <div key={index} className="flex items-end space-x-2">
-                <div className="flex-grow">
-                  <CurrencyInput
-                    value={item.price}
-                    onChange={(e) =>
-                      updateBulkItem(index, "price", e.target.value)
-                    }
-                    label={`Item ${index + 1} Price`}
-                    placeholder="Enter item price"
-                  />
-                </div>
-                <div className="w-24">
-                  <Label htmlFor={`quantity-${index}`}>Quantity</Label>
-                  <Input
-                    type="number"
-                    id={`quantity-${index}`}
-                    value={item.quantity}
-                    onChange={(e) =>
-                      updateBulkItem(index, "quantity", e.target.value)
-                    }
-                    min="1"
-                    step="1"
-                  />
-                </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => removeBulkItem(index)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
-            <Button onClick={addBulkItem} variant="outline">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Item
+          </div>
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowComments(!showComments)}
+              className="p-0 hover:text-blue-500"
+            >
+              <MessageSquare className="h-5 w-5" />
             </Button>
-            <PercentageInput
-              value={bulkDiscount}
-              onChange={(e) => setBulkDiscount(e.target.value)}
-              label="Bulk Discount Percentage"
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBookmark}
+              className={`p-0 ${
+                isBookmarked ? "text-yellow-500" : "hover:text-yellow-500"
+              }`}
+            >
+              <Bookmark className="h-5 w-5" />
+            </Button>
+          </div>
+        </div>
+        {showComments && (
+          <div className="mt-4">
+            <Textarea
+              placeholder="Add a comment..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              className="mb-2"
             />
-            <Button onClick={calculateBulkDiscount} className="w-full">
-              Calculate Bulk Discount
+            <Button
+              onClick={handleAddComment}
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              Post Comment
             </Button>
-            {bulkResult && (
-              <Alert>
-                <AlertDescription>
-                  <pre className="whitespace-pre-wrap">{bulkResult}</pre>
-                </AlertDescription>
-              </Alert>
-            )}
-          </TabsContent>
-        </Tabs>
+            <div className="mt-4 space-y-2">
+              {post.comments.map((comment, index) => (
+                <div key={index} className="bg-gray-100 p-2 rounded">
+                  <p className="font-semibold">{comment.username}</p>
+                  <p>{comment.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
 };
 
-export default function App() {
+const SortDropdown = ({ onSort }) => (
+  <select
+    onChange={(e) => onSort(e.target.value)}
+    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+  >
+    <option value="latest">Latest Posts</option>
+    <option value="mostVoted">Most Voted</option>
+    <option value="mostCommented">Most Commented</option>
+  </select>
+);
+
+const NewPostDialog = ({ onNewPost }) => {
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [tags, setTags] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const handleSubmit = () => {
+    if (title && content) {
+      onNewPost({
+        title,
+        content,
+        tags: tags.split(",").map((tag) => tag.trim()),
+      });
+      setTitle("");
+      setContent("");
+      setTags("");
+      setOpen(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <DiscountCalculator />
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="bg-green-500 hover:bg-green-600 text-white">
+          <PlusCircle className="mr-2 h-4 w-4" /> New Post
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Create a New Post</DialogTitle>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <Input
+            placeholder="Post Title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <Textarea
+            placeholder="Post Content"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+          <Input
+            placeholder="Tags (comma-separated)"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+          />
+        </div>
+        <Button
+          onClick={handleSubmit}
+          className="bg-blue-500 hover:bg-blue-600 text-white"
+        >
+          Create Post
+        </Button>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default function App() {
+  const [posts, setPosts] = useState(initialForumData.posts);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleVote = (postId, newVotes) => {
+    setPosts(
+      posts.map((post) =>
+        post.postId === postId ? { ...post, upvotes: newVotes } : post
+      )
+    );
+  };
+
+  const handleBookmark = (postId, isBookmarked) => {
+    setPosts(
+      posts.map((post) =>
+        post.postId === postId ? { ...post, isBookmarked } : post
+      )
+    );
+  };
+
+  const handleComment = (postId, commentText) => {
+    setPosts(
+      posts.map((post) =>
+        post.postId === postId
+          ? {
+              ...post,
+              comments: [
+                ...post.comments,
+                { username: initialForumData.username, text: commentText },
+              ],
+            }
+          : post
+      )
+    );
+  };
+
+  const handleSort = (sortType) => {
+    const sortedPosts = [...posts].sort((a, b) => {
+      if (sortType === "latest") {
+        return new Date(b.createdAt) - new Date(a.createdAt);
+      } else if (sortType === "mostVoted") {
+        return b.upvotes - b.downvotes - (a.upvotes - a.downvotes);
+      } else if (sortType === "mostCommented") {
+        return b.comments.length - a.comments.length;
+      }
+    });
+    setPosts(sortedPosts);
+  };
+
+  const handleNewPost = (newPost) => {
+    const post = {
+      postId: `post${posts.length + 1}`,
+      username: initialForumData.username,
+      name: initialForumData.name,
+      picUrl: initialForumData.picUrl,
+      post: newPost.title,
+      postDescription: newPost.content,
+      upvotes: 0,
+      downvotes: 0,
+      tags: newPost.tags,
+      createdAt: new Date().toISOString(),
+      comments: [],
+      isBookmarked: false,
+    };
+    setPosts([post, ...posts]);
+  };
+
+  const filteredPosts = posts.filter(
+    (post) =>
+      post.post.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.postDescription.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.tags.some((tag) =>
+        tag.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+  );
+
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      <Sidebar className="hidden sm:block" />
+      <main className="flex-1 p-4 overflow-y-auto">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-3xl font-bold text-gray-800">
+              Latest Discussions
+            </h1>
+            <div className="flex items-center space-x-2">
+              <NewPostDialog onNewPost={handleNewPost} />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="sm:hidden">
+                    <Menu className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  {["Home", "Explore", "Bookmarks", "Profile"].map((item) => (
+                    <DropdownMenuItem key={item}>
+                      <span className="mr-2">{getIcon(item)}</span>
+                      {item}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
+          <div className="mb-6 flex space-x-4">
+            <div className="flex-1">
+              <Input
+                type="text"
+                placeholder="Search posts..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <div className="w-48">
+              <SortDropdown onSort={handleSort} />
+            </div>
+          </div>
+          {filteredPosts.length === 0 ? (
+            <div className="text-center py-10">
+              <p className="text-gray-500 text-xl">
+                No posts found. Be the first to start a discussion!
+              </p>
+            </div>
+          ) : (
+            filteredPosts.map((post) => (
+              <Post
+                key={post.postId}
+                post={post}
+                onVote={handleVote}
+                onBookmark={handleBookmark}
+                onComment={handleComment}
+              />
+            ))
+          )}
+        </div>
+      </main>
     </div>
   );
 }
